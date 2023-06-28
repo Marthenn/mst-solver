@@ -485,7 +485,7 @@ class Ui_MainWindow(object):
         
         try:
             if not self.clusterNumber.value():
-                raise Exception("Cluster number cannot be empty")
+                raise Exception("Cluster number cannot be 0")
             if self.clusterNumber.value() > len(self.graph.vertices):
                 raise Exception("Cluster number cannot be greater than number of vertices")
             self.graph.clustering(self.clusterNumber.value())
