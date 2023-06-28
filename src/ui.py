@@ -1,3 +1,5 @@
+import graph
+
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'ui.ui'
@@ -10,6 +12,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+graph = None
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -290,7 +293,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "MST Finder"))
         self.header.setText(_translate("MainWindow", "MST FINDER"))
         self.fileButton.setText(_translate("MainWindow", "Choose File"))
         self.label.setText(_translate("MainWindow", "No File Selected"))
