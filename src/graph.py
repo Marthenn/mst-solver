@@ -28,8 +28,11 @@ class Graph:
             source, destination = destination, source
         self.edges.append((source, destination, weight))
 
-    def remove_edge(self, source, destination, weight):
-        self.edges.remove((source, destination, weight))
+    def remove_edge(self, source, destination):
+        for edge in self.edges:
+            if edge[0] == source and edge[1] == destination or edge[0] == destination and edge[1] == source:
+                self.edges.remove(edge)
+                break
     
     def add_vertex(self, vertex):
         self.vertices.add(vertex)
