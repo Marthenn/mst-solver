@@ -11,10 +11,8 @@ import graph, parser
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
-graph = None
-
 class Ui_MainWindow(object):
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 680)
@@ -314,9 +312,14 @@ class Ui_MainWindow(object):
         try:
             print("Selected File:", file_name)
             self.label.setText(file_name)
+            matrix = parser.parse(file_name)
+            print (matrix)
+            self.graph = graph.Graph(matrix)
+            print(self.graph)
         except Exception as e:
             error_message = f"Error opening file: {str(e)}"
             QtWidgets.QMessageBox.critical(None, "Error", error_message)
+            self.label.setText("No File Selected")
 	    
 
 
