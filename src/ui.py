@@ -350,6 +350,9 @@ class Ui_MainWindow(object):
             ax.plot([pos1[0], pos2[0]], [pos1[1], pos2[1]], color='white')
             ax.text((pos1[0] + pos2[0])/2, (pos1[1] + pos2[1])/2, str(weight), color = 'black', fontweight='bold')
         
+        # add the self.graph.tree_weight to the plot as well
+        ax.text(0.5, 0.05, f"Total Weight: {self.graph.tree_weight()}", horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, color='white', fontweight='bold')
+        
         self.canvas.draw()
     
     def findMST(self):
