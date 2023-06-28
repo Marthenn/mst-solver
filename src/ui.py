@@ -17,6 +17,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
+        self.graph = None
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 680)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -291,6 +292,13 @@ class Ui_MainWindow(object):
         self.algoBox.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.fileButton.clicked.connect(self.chooseFile)
+        self.mstButton.clicked.connect(self.findMST)
+        self.addEdgeButton.clicked.connect(self.addEdge)
+        self.removeEdgeButton.clicked.connect(self.delEdge)
+        self.removeVertexButton.clicked.connect(self.delVertex)
+        self.addVertexNumber.clicked.connect(self.addVertex)
+        self.resetButton.clicked.connect(self.reset)
+        self.clusterButton.clicked.connect(self.findCluster)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -343,6 +351,146 @@ class Ui_MainWindow(object):
             ax.text((pos1[0] + pos2[0])/2, (pos1[1] + pos2[1])/2, str(weight), color = 'black', fontweight='bold')
         
         self.canvas.draw()
+    
+    def findMST(self):
+        if self.graph is None:
+            QtWidgets.QMessageBox.critical(None, "Error", "No graph found")
+            return
+
+        if self.algoBox.currentText() == "Prim":
+            self.graph.prim()
+        else:
+            self.graph.kruskal()
+        
+        self.draw_graph()
+    
+    def addVertex(self):
+        if self.graph is None:
+            QtWidgets.QMessageBox.critical(None, "Error", "No graph found")
+            return
+
+        try:
+            if not self.vertexNumber.value():
+                self.vertexNumber.setValue(0)
+            
+            if self.vertexNumber.value() in self.graph.vertices:
+                raise Exception("Vertex already exists")
+
+            self.graph.add_vertex(int(self.vertexNumber.value()))
+            self.draw_graph()
+        except Exception as e:
+            error_message = f"Error adding vertex: {str(e)}"
+            QtWidgets.QMessageBox.critical(None, "Error", error_message)
+    
+    def delVertex(self):
+        if self.graph is None:
+            QtWidgets.QMessageBox.critical(None, "Error", "No graph found")
+            return
+        
+        try:
+            if not self.vertexNumber.value():
+                self.vertexNumber.setValue(0)
+            
+            if self.vertexNumber.value() not in self.graph.vertices:
+                raise Exception("Vertex does not exist")
+
+            self.graph.remove_vertex(int(self.vertexNumber.value()))
+            self.draw_graph()
+        except Exception as e:
+            error_message = f"Error deleting vertex: {str(e)}"
+            QtWidgets.QMessageBox.critical(None, "Error", error_message)
+    
+    def addEdge(self):
+        if self.graph is None:
+            QtWidgets.QMessageBox.critical(None, "Error", "No graph found")
+            return
+        
+        try:
+            if not self.vertex1.value():
+                self.vertex1.setValue(0)
+
+            if not self.vertex2.value():
+                self.vertex2.setValue(0)
+
+            if not self.weight.value():
+                raise Exception("Weight cannot be 0")
+            
+            if self.vertex1.value() not in self.graph.vertices or self.vertex2.value() not in self.graph.vertices:
+                raise Exception("Vertex does not exist")
+            
+            if self.vertex1.value() == self.vertex2.value():
+                raise Exception("Cannot add edge to same vertex")
+
+            edgeExist = False
+
+            for edge in self.graph.edges:
+                if self.vertex1.value() == edge[0] and self.vertex2.value() == edge[1]:
+                    edgeExist = True
+                    break
+
+            if edgeExist:
+                raise Exception("Edge already exists")
+            
+            self.graph.add_edge(self.vertex1.value(), self.vertex2.value(), self.weight.value())
+            self.draw_graph()
+
+        except Exception as e:
+            error_message = f"Error adding edge: {str(e)}"
+            QtWidgets.QMessageBox.critical(None, "Error", error_message)
+    
+    def delEdge(self):
+        if self.graph is None:
+            QtWidgets.QMessageBox.critical(None, "Error", "No graph found")
+            return
+        
+        try:
+            if not self.vertex1.value():
+                self.vertex1.setValue(0)
+            
+            if not self.vertex2.value():
+                self.vertex2.setValue(0)
+            
+            if self.vertex1.value() not in self.graph.vertices or self.vertex2.value() not in self.graph.vertices:
+                raise Exception("Vertex does not exist")
+
+            edgeExist = False
+
+            for edge in self.graph.edges:
+                if self.vertex1.value() == edge[0] and self.vertex2.value() == edge[1]:
+                    edgeExist = True
+                    break
+
+            if not edgeExist:
+                raise Exception("Edge does not exist")
+            
+            self.graph.remove_edge(self.vertex1.value(), self.vertex2.value())
+            self.draw_graph()
+        
+        except Exception as e:
+            error_message = f"Error deleting edge: {str(e)}"
+            QtWidgets.QMessageBox.critical(None, "Error", error_message)
+    
+    def reset(self):
+        if self.graph:
+            self.graph.reset()
+            self.draw_graph()
+
+    def findCluster(self):
+        if self.graph is None:
+            QtWidgets.QMessageBox.critical(None, "Error", "No graph found")
+            return
+        
+        try:
+            if not self.clusterNumber.value():
+                raise Exception("Cluster number cannot be empty")
+            if self.clusterNumber.value() > len(self.graph.vertices):
+                raise Exception("Cluster number cannot be greater than number of vertices")
+            self.graph.clustering(self.clusterNumber.value())
+            self.draw_graph()
+        except Exception as e:
+            error_message = f"Error finding cluster: {str(e)}"
+            QtWidgets.QMessageBox.critical(None, "Error", error_message)
+            
 
 if __name__ == "__main__":
     import sys
