@@ -152,44 +152,46 @@ class Graph:
         return weight
     
     def __count_clusters__(self, edge):
-        # count number of clusters in graph if edge is removed
-        parent = set()
-        pred = dict()
-
+        # Remove the edge from the graph
+        if edge is not None:
+            self.edges.remove(edge)
+        
+        # Perform DFS to count the number of clusters
+        visited = set()
+        num_clusters = 0
+        
         for vertex in self.vertices:
-            pred[vertex] = vertex
-        
-        for e in self.edges:
-            if e != edge:
-                pred[e[1]] = e[0]
-            
-        vertices = list(self.vertices)
+            if vertex not in visited:
+                self.__dfs__(vertex, visited)
+                num_clusters += 1
 
-        for i in range(len(self.vertices)):
-            if pred[vertices[i]] != vertices[i]:
-                pred[vertices[i]] = pred[pred[vertices[i]]]
-                i = 0
+        # Add the edge back to the graph
+        if edge is not None:
+            self.edges.append(edge)
         
-        for v in pred.values():
-            parent.add(v)
+        return num_clusters
+
+
+    def __dfs__(self, vertex, visited):
+        visited.add(vertex)
         
-        print(pred)
-        print(parent)
-        print(self.edges)
-        
-        return len(parent)
+        for v1, v2, weight in self.edges:
+            if v1 == vertex and v2 not in visited:
+                self.__dfs__(v2, visited)
+            elif v2 == vertex and v1 not in visited:
+                self.__dfs__(v1, visited)
                 
 
     def clustering(self, number):
         self.reset()
 
         while self.__count_clusters__(None) < number:
-            edge = self.edges[0]
+            edge = self.edges[-1]
             if self.__count_clusters__(edge) > number:
-                self.edges.pop(0)
-                self.edges.append(edge)
+                self.edges.pop()
+                self.edges.insert(0, edge)
             else:
-                self.edges.pop(0)
+                self.edges.pop()
         self.edges.sort(key=lambda x: x[2])
 
 
