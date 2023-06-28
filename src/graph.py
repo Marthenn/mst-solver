@@ -173,7 +173,9 @@ class Graph:
         for v in pred.values():
             parent.add(v)
         
-        console.log(pred)
+        print(pred)
+        print(parent)
+        print(self.edges)
         
         return len(parent)
                 
