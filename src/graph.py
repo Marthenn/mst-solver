@@ -24,6 +24,8 @@ class Graph:
         self.edges.sort(key=lambda x: x[2])
     
     def add_edge(self, source, destination, weight):
+        if source > destination: # preserve convention
+            source, destination = destination, source
         self.edges.append((source, destination, weight))
 
     def remove_edge(self, source, destination, weight):
@@ -39,9 +41,12 @@ class Graph:
     def remove_vertex(self, vertex):
         self.vertices.remove(vertex)
         self.vertices_position.pop(vertex)
+        self.edges = [edge for edge in self.edges if vertex not in edge]
     
     def reset(self):
         self.edges = []
+        self.vertices = set()
+        self.vertices_position = dict()
 
         for i in range(len(self.matrix)):
             for j in range(i+1, len(self.matrix)):
@@ -49,6 +54,12 @@ class Graph:
                     self.edges.append((i, j, self.matrix[i][j]))
                     self.vertices.add(i)
                     self.vertices.add(j)
+        
+        # generate random position for vertices (x, y)
+        for i in range(len(self.vertices)):
+            x = random.randint(0, 100)
+            y = random.randint(0, 100)
+            self.vertices_position[i] = (x, y)
         
         # sort edges by weight (ascending)
         self.edges.sort(key=lambda x: x[2])
@@ -137,16 +148,53 @@ class Graph:
         
         return weight
     
+    def __count_clusters__(self):
+        graph = {}
+
+        for edge in self.edges:
+            if edge[0] not in graph:
+                graph[edge[0]] = []
+            if edge[1] not in graph:
+                graph[edge[1]] = []
+            graph[edge[0]].append(edge[1])
+            graph[edge[1]].append(edge[0])
+
+        visited = set()
+        clusters = 0
+
+        def dfs(vertex):
+            visited.add(vertex)
+            for v in graph[vertex]:
+                if v not in visited:
+                    dfs(v)
+        
+        for vertex in graph:
+            if vertex not in visited:
+                dfs(vertex)
+                clusters += 1
+        
+        return clusters
+
     def clustering(self, number):
         self.reset()
-        clusters = []
+        clusters = 0
+
+        # remove edges with largest weight until number of clusters is reached
+        while clusters < number:
+            self.edges.pop()
+            clusters = self.__count_clusters__()
+            print(clusters)
 
 if __name__ == "__main__":
     list = [[0, 10, 0, 30, 45, 0], [10, 0, 50, 0, 40, 25], [0, 50, 0, 0, 35, 15], [30, 0, 0, 0, 0, 20], [45, 40, 35, 0, 0, 55], [0, 25, 15, 20, 55, 0]]
     graph = Graph(list)
+    print(graph.edges)
     graph.prim()
     print(graph.edges)
     print(graph.tree_weight())
     graph.kruskal()
     print(graph.edges)
     print(graph.tree_weight())
+    graph.clustering(2)
+    print(graph.edges)
+    print(graph.vertices_position)
