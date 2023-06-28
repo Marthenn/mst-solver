@@ -1,4 +1,4 @@
-import graph
+import graph, parser
 
 # -*- coding: utf-8 -*-
 
@@ -288,8 +288,9 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.algoBox.setCurrentIndex(-1)
+        self.algoBox.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.fileButton.clicked.connect(self.chooseFile)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -304,6 +305,19 @@ class Ui_MainWindow(object):
         self.clusterButton.setText(_translate("MainWindow", "Find Cluster"))
         self.mstButton.setText(_translate("MainWindow", "Find MST"))
         self.resetButton.setText(_translate("MainWindow", "Reset"))
+
+    def chooseFile(self):
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        file_name, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Choose File", "", "Text Files (*.txt)", options=options)
+
+        try:
+            print("Selected File:", file_name)
+            self.label.setText(file_name)
+        except Exception as e:
+            error_message = f"Error opening file: {str(e)}"
+            QtWidgets.QMessageBox.critical(None, "Error", error_message)
+	    
 
 
 if __name__ == "__main__":

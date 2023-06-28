@@ -1,3 +1,5 @@
+import random
+
 class Graph:
     def __init__(self, matrix):
         self.graph = matrix
@@ -13,7 +15,7 @@ class Graph:
                     self.vertices.add(j)
         
         # generate random position for vertices (x, y)
-        for i in range(len(vertices)):
+        for i in range(len(self.vertices)):
             x = random.randint(0, 100)
             y = random.randint(0, 100)
             self.vertices_position[i] = (x, y)
@@ -145,3 +147,8 @@ class Graph:
     def clustering(self, number):
         self.reset()
         clusters = []
+
+if __name__ == "__main__":
+    list = [[0, 4, 0, 0, 0, 0, 0], [4, 0, 1, 3, 0, 0, 0], [0, 1, 0, 2, 0, 0, 0], [0, 3, 2, 0, 1, 0, 0], [0, 0, 0, 1, 0, 2, 0], [0, 0, 0, 0, 2, 0, 3], [0, 0, 0, 0, 0, 3, 0]]
+    graph = Graph(list)
+    print(graph)
