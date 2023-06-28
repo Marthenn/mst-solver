@@ -184,6 +184,7 @@ class Graph:
 
     def clustering(self, number):
         self.reset()
+        self.kruskal()
 
         while self.__count_clusters__(None) < number:
             edge = self.edges[-1]
