@@ -151,46 +151,49 @@ class Graph:
         
         return weight
     
-    def __count_clusters__(self):
-        graph = {}
+    def __count_clusters__(self, edge):
+        # count number of clusters in graph if edge is removed
+        parent = set()
+        pred = dict()
 
-        for edge in self.edges:
-            if edge[0] not in graph:
-                graph[edge[0]] = []
-            if edge[1] not in graph:
-                graph[edge[1]] = []
-            graph[edge[0]].append(edge[1])
-            graph[edge[1]].append(edge[0])
-
-        visited = set()
-        clusters = 0
-
-        def dfs(vertex):
-            visited.add(vertex)
-            for v in graph[vertex]:
-                if v not in visited:
-                    dfs(v)
+        for vertex in self.vertices:
+            pred[vertex] = vertex
         
-        for vertex in graph:
-            if vertex not in visited:
-                dfs(vertex)
-                clusters += 1
+        for e in self.edges:
+            if e != edge:
+                pred[e[1]] = e[0]
+            
+        vertices = list(self.vertices)
+
+        for i in range(len(self.vertices)):
+            if pred[vertices[i]] != vertices[i]:
+                pred[vertices[i]] = pred[pred[vertices[i]]]
+                i = 0
         
-        return clusters
+        for v in pred.values():
+            parent.add(v)
+        
+        console.log(pred)
+        
+        return len(parent)
+                
 
     def clustering(self, number):
         self.reset()
-        clusters = 0
 
-        # remove edges with largest weight until number of clusters is reached
-        while clusters < number:
-            self.edges.pop()
-            clusters = self.__count_clusters__()
-            print(clusters)
+        while self.__count_clusters__(None) < number:
+            edge = self.edges[0]
+            if self.__count_clusters__(edge) > number:
+                self.edges.pop(0)
+                self.edges.append(edge)
+            else:
+                self.edges.pop(0)
+        self.edges.sort(key=lambda x: x[2])
+
 
 if __name__ == "__main__":
-    list = [[0, 10, 0, 30, 45, 0], [10, 0, 50, 0, 40, 25], [0, 50, 0, 0, 35, 15], [30, 0, 0, 0, 0, 20], [45, 40, 35, 0, 0, 55], [0, 25, 15, 20, 55, 0]]
-    graph = Graph(list)
+    lis = [[0, 10, 0, 30, 45, 0], [10, 0, 50, 0, 40, 25], [0, 50, 0, 0, 35, 15], [30, 0, 0, 0, 0, 20], [45, 40, 35, 0, 0, 55], [0, 25, 15, 20, 55, 0]]
+    graph = Graph(lis)
     print(graph.edges)
     graph.prim()
     print(graph.edges)
