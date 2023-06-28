@@ -1,4 +1,7 @@
 import graph, parser
+import matplotlib.pyplot as plt
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 # -*- coding: utf-8 -*-
 
@@ -89,11 +92,10 @@ class Ui_MainWindow(object):
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
-        self.visualization = QtWidgets.QFrame(self.frame_2)
-        self.visualization.setGeometry(QtCore.QRect(10, 10, 501, 441))
-        self.visualization.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.visualization.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.visualization.setObjectName("visualization")
+        self.canvas = FigureCanvas(plt.figure())
+        self.canvas.setParent(self.frame_2)
+        self.canvas.setGeometry(QtCore.QRect(10, 10, 501, 441))
+        self.canvas.figure.set_facecolor('#5F9DF7')
         self.frame_3 = QtWidgets.QFrame(self.background)
         self.frame_3.setGeometry(QtCore.QRect(560, 190, 211, 471))
         self.frame_3.setStyleSheet("background-color: #5F9DF7;\n"
@@ -309,19 +311,38 @@ class Ui_MainWindow(object):
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
         file_name, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Choose File", "", "Text Files (*.txt)", options=options)
 
+        if not file_name:
+            return
+
         try:
-            print("Selected File:", file_name)
             self.label.setText(file_name)
             matrix = parser.parse(file_name)
-            print (matrix)
             self.graph = graph.Graph(matrix)
-            print(self.graph)
+            self.draw_graph()
         except Exception as e:
             error_message = f"Error opening file: {str(e)}"
             QtWidgets.QMessageBox.critical(None, "Error", error_message)
             self.label.setText("No File Selected")
-	    
+	
+    def draw_graph(self):
+        self.canvas.figure.clear()
 
+        ax = self.canvas.figure.add_subplot(111)
+        ax.axis('off')
+
+        for vertex in self.graph.vertices:
+            pos = self.graph.vertices_position[vertex]
+            ax.plot(pos[0], pos[1], 'o', color='orange', markersize=15)
+            ax.annotate(vertex, pos, color='white', fontweight='bold')
+        
+        for edge in self.graph.edges:
+            [v1, v2, weight] = edge
+            pos1 = self.graph.vertices_position[v1]
+            pos2 = self.graph.vertices_position[v2]
+            ax.plot([pos1[0], pos2[0]], [pos1[1], pos2[1]], color='white')
+            ax.text((pos1[0] + pos2[0])/2, (pos1[1] + pos2[1])/2, str(weight), color = 'black', fontweight='bold')
+        
+        self.canvas.draw()
 
 if __name__ == "__main__":
     import sys
